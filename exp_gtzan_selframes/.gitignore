@@ -1,0 +1,13 @@
+*.pyc
+*.txt
+*.dill
+**/*.pyc
+**/*.stft
+**/*.dill
+**/*.predict
+**/.eval
+res_*
+*_folds*
+ae*/*
+.ipynb*
+

@@ -1,0 +1,182 @@
+general:
+    scratch_directory: '/home/juliano/neural_nets/music_classification_framework/scratch/'
+    label_dict_file: 'exp_gtzan_selframes/gtzan_dict.py'
+    in_script: True
+    dataset_name: null      #Set this manually through the command-line!
+
+gtzan_features:
+    n_mfcc: &n_mfcc 20
+    n_fft: &n_fft 2048
+    hop_length: &hop_length 1024
+    target_sr: &target_sr 44100
+    deltas: True
+    delta_deltas: True
+
+random_projection:
+    n_fft: 2048
+    target_sr: 44100
+    hop_length: 1024
+    projection_matrix: null     #this is a runtime parameter. i.e. must be set during runtime
+    non_linearity: null         #this can be tanh or null for now
+    deltas: False
+    delta_deltas: False
+    mel_bins: null
+    in_db: False
+
+stft_features:
+    n_fft: *n_fft 
+    hop_length: *hop_length 
+    target_sr: *target_sr 
+    deltas: True
+    delta_deltas: True
+    mel_bins: null
+
+cqt_features:
+    n_bins: 216
+    bins_per_octave: 24
+    hop_length: 1024
+    target_sr: *target_sr 
+    deltas: True
+    delta_deltas: True
+
+pca_features:
+    n_fft: 2048
+    target_sr: 44100
+    hop_length: 1024
+    deltas: False
+    delta_deltas: False
+    mel_bins: null      # If null, pca_features are calculated over STFT, not Mel Spec
+    in_db: False
+    n_components: null
+
+identity_features:
+    predicted_features_input: null
+    deltas: False
+    delta_deltas: False
+
+frame_selector:
+    n_frames: 20
+    normalize: False
+    subset_size: null # how many frames to keep from the selected. The first subset_size frames are kept.
+
+kmeansc_selector:
+    sort_centroids_by_common: null  # whether to sort centroids by most common to least common. can be null, 'asc' or 'desc'
+                                    # 'asc' -> less common to more common, 'desc' -> more common to less common
+
+linspace_selector:
+    single_is_center_frame: True
+    
+centerk_selector:
+    pad: True
+
+random_selector:
+    seed: 0
+
+svm_anova:
+    num_workers: 6
+    grid_verbose: 10
+
+    kernel: 'rbf'       # sklearn.svm.SVC() kernel parameter
+
+    Cs: [10, 100, 1000]
+    gammas: ['auto']
+    probability: False
+    
+    anova_percentiles: [50,70,100]
+    no_anova: True
+
+    hyperparameter_tuning: 'single_split'  #can be cv or single_split
+
+knn:
+    num_workers: 6
+    grid_verbose: 10
+
+    n_neighbors: [1,3,5,7]
+    
+    anova_percentiles: [33, 66, 100]
+    no_anova: True
+
+random_forest:
+    min_samples_leaf: [1,2]
+    n_estimators: [500,1000,1500]
+    max_features_ratio: [0.5, 1]
+    num_workers: 4
+    grid_verbose: 10
+
+attention_net:
+    input_encoder: 'ae'                 #can be ae or mlp
+    input_encoder_neurons: [50]
+    input_encoder_layers: ['dense']
+    input_encoder_activations: ['relu']
+    input_encoder_conv_kernel_sizes: [16]
+    bottleneck_size: 256                #dimensionality into which encode the input
+    pooling_stride: 20                  #divides the number of frames by this when average pooling
+    classifier_neurons: [50]            #how many neurons in each layer of the classifier. for dropout, the dropout probability is expected.
+    classifier_layers: ['dense']        #what are the layers of the classifier. valid layers: dense, conv, dropout
+    classifier_activations: ['relu']    #what are the activations of each layer of the classifier. the dropout one is ignored.
+    conv_kernel_sizes: [16]             #what is the kernel filter size for each convolutional layer of the classifier.
+    epochs: 1000
+    batch_size: 200
+    patience: 75
+    gpu: '0'
+    temp_output: null
+
+sklearnlike_tester:
+    dummy: None
+
+texture_avg_stdev_filter:
+    window_size: 216
+    mean: True
+    variance: True
+
+linspace_downsample_filter:
+    hop_size: 10
+
+exp_gtzan_selframes:
+    extraction_workers: 6
+
+    frame_selector: 'kmeansf'
+    
+    ivector: False
+
+    extract_features: False
+    train: False    
+    test: False
+    vote: False
+    voting: 'max'
+
+    feature_extraction_filelist: 'exp_gtzan_selframes/gtzan_labels.txt'
+    train_filelist: 'exp_gtzan_selframes/gtzan_4folds/gtzan_f1_train.txt'
+    test_filelist:  'exp_gtzan_selframes/gtzan_4folds/gtzan_f1_test.txt'
+    frame_predictions: 'exp_gtzan_selframes/predictions.dill'
+    final_prediction: 'exp_gtzan_selframes/final_predict.txt'
+    model_file: 'model.svm'
+
+    classifier: 'svm_anova'     # can be either svm_anova or random_forest
+
+exp_gtzan_selframes_norm_feats:
+    low_level_feature_filename: 'low_level_features.dill'
+    texture_aggregation: True
+
+    feature_extractor: 'random_projection'      #currently can be random_projection, gtzan, identity or stft
+
+    ivector: False
+
+    rp_projection_matrix: 'exp_gtzan_selframes/proj_matrix.dill'
+
+    linspace_downsampling: True
+
+    beat_aggregation: False
+    ba_hop_length: *hop_length
+    ba_sr: *target_sr
+    ba_aggregate: 'mean'  #can be either mean or median
+
+    smart_feature_scaler_loading: False      #if this is true, it will try loading dataset_name_fold_name.ss.dill
+
+    train_features_filename: 'train_features.dill'
+    feature_scaler_filename: 'feature_scaler.dill'
+    test_features_filename: 'test_features.dill'
+
+single_split_gs:
+    groups_file: null
+
