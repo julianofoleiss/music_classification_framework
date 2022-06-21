@@ -15,7 +15,7 @@ matplotlib==2.2.3
 multiprocess==0.70.6.1
 multiprocessing==2.6.2.1
 numexpr==2.6.8
-numpy==1.15.3
+numpy==1.22.0
 pandas==0.24.1
 progress==1.4
 python-dateutil==2.8.0
